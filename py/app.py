@@ -7,15 +7,24 @@ from main import predecir_precio
 # Título de la aplicación
 st.title('Predicción de Precios de Airbnb en Nueva York')
 
-# Sidebar para la entrada de datos
+# Crear un mapa base
+mapa = folium.Map(location=[40.730610, -73.935242], zoom_start=12)
+folium.LatLngPopup().add_to(mapa)
+
+# Mostrar el mapa
+mapa_static = folium_static(mapa)
+
+# Entrada de usuario para la latitud y longitud
 st.sidebar.header('Ingrese los detalles de la ubicación')
-lat = st.sidebar.number_input('Latitud', value=40.730610)  # Valor por defecto de ejemplo
-long = st.sidebar.number_input('Longitud', value=-73.935242)  # Valor por defecto de ejemplo
+lat = st.sidebar.number_input('Latitud')
+long = st.sidebar.number_input('Longitud')
 
 # Botón para realizar la predicción
 if st.sidebar.button('Predecir Precio'):
-    # Preparar datos para la predicción
-    datos_entrada = pd.DataFrame({
+    # Asegúrate de que las coordenadas sean válidas
+    if lat and long:
+        # Preparar datos para la predicción
+        datos_entrada = pd.DataFrame({
         'lat': [lat],
         'long': [long],
         'instant_bookable': [True],
@@ -50,9 +59,10 @@ if st.sidebar.button('Predecir Precio'):
         # Mostrar precio predicho
         st.sidebar.write(f"El precio predicho para la ubicación dada es: ${precio_predicho[0]:.2f}")
 
-        # Mostrar el mapa
-        mapa = folium.Map(location=[lat, long], zoom_start=12)
+        # Actualizar el mapa con un marcador en la ubicación seleccionada
         folium.Marker([lat, long], popup=f'Precio Predicho: ${precio_predicho[0]:.2f}').add_to(mapa)
         folium_static(mapa)
     else:
         st.sidebar.write("Error en la predicción del precio.")
+else:
+    st.sidebar.write("Por favor, introduzca una ubicación válida.")
